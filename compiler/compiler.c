@@ -128,17 +128,20 @@ void WHILE() {
   emit("(L%d)\n", whileEnd);
 }
 
-// if (EXP) STMT (else STMT)?
-void IF() {
-  skip("if");
-  skip("(");
-  E();
-  skip(")");
+void DO_WHILE() {
+  int doBegin = nextLabel();
+  int doEnd = nextLabel();
+  emit("(L%d)\n", doBegin);
+  skip("do");
   STMT();
-  if (isNext("else")) {
-    skip("else");
-    STMT();
-  }
+  skip("while");
+  skip("(");
+  int e = E();
+  emit("if not t%d goto L%d\n", e, doEnd);
+  emit("goto L%d\n", doBegin);
+  emit("(L%d)\n", doEnd);
+  skip(")");
+  skip(";");
 }
 
 // STMT = WHILE | BLOCK | ASSIGN
