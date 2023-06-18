@@ -27,7 +27,7 @@ int *e, *le,  // current position in emitted code (e: 目前機器碼指標, le:
     src,      // print source and assembly flag (印出原始碼)
     debug;    // print executed instructions (印出執行指令 -- 除錯模式)
 
-// tokens and classes (operators last and in precedence order) (按優先權順序排列)
+// tokens and classes (operators last and in precedence order) (按優先權順序排列)目的是定義不同的符號和類別的編號，以便在程式中進行相關操作和判斷。
 enum { // token : 0-127 直接用該字母表達， 128 以後用代號。
   Num = 128, Fun, Sys, Glo, Loc, Id,
   Char, Else, Enum, If, Int, Return, Sizeof, While,
@@ -83,6 +83,8 @@ void next() // 詞彙解析 lexer
       tk = id[Tk] = Id; // token = id.Tk = Id
       return;
     }
+      //這段是主要處理 Keywords。第一步先算出該 token 的 hash value，然後利用 hash value and name 找尋 symbol table，如果有找到就回傳該 token enum value；如果找不到就新增 id(symbol)，
+      //並且設定 token enum value 為 Id(133)。這邊最容易混淆的是 tk 這個 variable：在進入此 code block 之前，tk=*p；然後在算 hash value 的時候，tk 代表的是 hash value；最後要 return 前，tk 紀錄的是 token enum value。
     else if (tk >= '0' && tk <= '9') { // 取得數字串
       if (ival = tk - '0') { while (*p >= '0' && *p <= '9') ival = ival * 10 + *p++ - '0'; } // 十進位
       else if (*p == 'x' || *p == 'X') { // 十六進位
